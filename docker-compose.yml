@@ -1,0 +1,13 @@
+services:
+  featureflags:
+    build: .
+    ports:
+      - "3500:3500"
+    environment:
+      FF_DB: /data/flags.db
+    volumes:
+      - dados:/data
+    restart: unless-stopped
+
+volumes:
+  dados:

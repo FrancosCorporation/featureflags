@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FeatureFlags — painel admin</title>
+  <style>
+    :root { --fundo:#0f1318; --carta:#1a2027; --borda:#2c3540; --texto:#e8edf2; --suave:#8b98a5; --verde:#2ea043; --vermelho:#f85149; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:"Segoe UI",system-ui,Arial,sans-serif; background:var(--fundo); color:var(--texto); padding:20px; }
+    h1 { font-size:20px; } .sub { color:var(--suave); font-size:13px; margin-bottom:16px; }
+    .nova { background:var(--carta); border:1px solid var(--borda); border-radius:10px; padding:14px; display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+    .nova input, .nova select { background:var(--fundo); border:1px solid var(--borda); color:var(--texto); border-radius:6px; padding:8px 10px; font-size:13px; }
+    button { background:var(--verde); border:none; color:#fff; font-weight:700; border-radius:6px; padding:8px 14px; font-size:13px; cursor:pointer; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th, td { border:1px solid var(--borda); padding:8px 10px; text-align:left; }
+    th { background:var(--carta); color:var(--suave); }
+    .toggle { padding:4px 12px; border-radius:999px; font-size:11px; font-weight:700; border:none; cursor:pointer; }
+    .on { background:var(--verde); color:#fff; }
+    .off { background:var(--vermelho); color:#fff; }
+    input.mini { width:64px; background:var(--fundo); border:1px solid var(--borda); color:var(--texto); border-radius:4px; padding:4px 6px; font-size:12px; }
+  </style>
+</head>
+<body>
+  <h1>🚩 FeatureFlags</h1>
+  <p class="sub">avaliação booleana/percentual/por atributo — kill-switch e rollout canary</p>
+  <div class="nova">
+    <input id="chave" placeholder="chave (ex: novo-checkout)" size="18">
+    <input id="descricao" placeholder="descrição" size="24">
+    <input id="rollout" type="number" value="100" min="0" max="100" size="4" title="% rollout">
+    <select id="atributo"><option value="">sem alvo</option><option value="plan">plano</option><option value="pais">país</option></select>
+    <input id="valorAlvo" placeholder="valor do alvo" size="12">
+    <button onclick="criar()">Criar flag</button>
+  </div>
+  <table>
+    <thead><tr><th>Chave</th><th>Descrição</th><th>Status</th><th>Rollout %</th><th>Alvo</th></tr></thead>
+    <tbody id="flags"></tbody>
+  </table>
+  <script>
+    async function atualizar() {
+      const flags = await fetch('/api/flags').then((r) => r.json());
+      document.getElementById('flags').innerHTML = flags.map((f) => `
+        <tr>
+          <td><code>${f.chave}</code></td>
+          <td>${f.descricao || '—'}</td>
+          <td><button class="toggle ${f.ativa ? 'on' : 'off'}" onclick="toggle('${f.chave}', ${f.ativa ? 0 : 1})">${f.ativa ? 'ON' : 'OFF'}</button></td>
+          <td><input class="mini" type="number" value="${f.rollout}" onchange="rollout('${f.chave}', this.value)"></td>
+          <td>${f.atributo ? `${f.atributo} = ${f.valor_alvo}` : '—'}</td>
+        </tr>`).join('');
+    }
+    async function criar() {
+      const chave = document.getElementById('chave').value.trim();
+      if (!chave) return;
+      await fetch('/api/flags', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+        chave, descricao: document.getElementById('descricao').value, rollout: Number(document.getElementById('rollout').value),
+        atributo: document.getElementById('atributo').value, valorAlvo: document.getElementById('valorAlvo').value }) });
+      document.getElementById('chave').value = '';
+      atualizar();
+    }
+    async function toggle(chave, ativa) { await fetch(`/api/flags/${chave}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ativa }) }); atualizar(); }
+    async function rollout(chave, valor) { await fetch(`/api/flags/${chave}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rollout: Number(valor) }) }); }
+    atualizar();
+  </script>
+</body>
+</html>
