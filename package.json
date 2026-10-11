@@ -1,12 +1,22 @@
 {
   "name": "featureflags",
   "version": "0.1.0",
-  "description": "Plataforma enxuta de feature flags: avaliacao booleana/percentual/atributo, kill-switch, rollout canary, SDK JS",
+  "description": "Feature flags com painel autenticado, rollout determinístico e contexto de avaliação assinado",
   "main": "server.js",
   "type": "module",
   "license": "MIT",
   "author": "Rodolfo Franco (FrancosCorporation)",
-  "scripts": { "start": "node server.js", "test": "NODE_ENV=test node --test test/loja-test.mjs" },
-  "dependencies": { "express": "^4.21.0" },
-  "engines": { "node": ">=22.5.0" }
+  "scripts": {
+    "start": "node server.js",
+    "test": "NODE_ENV=test node --test test/loja-test.mjs"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.0",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
 }

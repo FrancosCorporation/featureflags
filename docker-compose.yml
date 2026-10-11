@@ -2,9 +2,14 @@ services:
   featureflags:
     build: .
     ports:
-      - "3500:3500"
+      - "127.0.0.1:${PORT:-3500}:${PORT:-3500}"
     environment:
-      FF_DB: /data/flags.db
+      PORT: ${PORT:-3500}
+      FF_DB: /data/featureflags.db
+      JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET no ambiente ou no arquivo .env}
+      EVALUATION_SECRET: ${EVALUATION_SECRET:?Defina EVALUATION_SECRET no ambiente ou no arquivo .env}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
     volumes:
       - dados:/data
     restart: unless-stopped

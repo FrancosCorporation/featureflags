@@ -492,3 +492,19 @@ git ls-files | grep -c '\\.db$'   # 0
 
 *Fim do plano. Gerado por leitura direta do código em 2026-10-02. Nenhum item já estava corrigido*
 *— todos apontam para defeitos ainda presentes.*
+
+## 11. Registro de execução · 2026-10-11
+
+Implementações feitas nesta rodada:
+
+- **SEC-05, SEC-01 e SEC-04:** login administrativo com BCrypt/JWT, seed inicial por ambiente e listagem/CRUD protegidos.
+- **SEC-02:** avaliação pública agora devolve somente `{ on }` e desabilita cache da resposta.
+- **SEC-03:** rollout anônimo continua usando `usuario`, que não é autorização; atributos de segmentação só são aceitos em JWT com emissor/audiência próprios, validado com `EVALUATION_SECRET`.
+- **SEC-06 e IMP-02:** SDK movido para `public/sdk.js`, servido com ETag e cache de 60 segundos.
+- **BUG-02, BUG-03 e BUG-04:** atualização inexistente retorna `404`; rollout usa 32 bits; `ativa` aceita somente booleano ou `0/1`, nunca string como `"false"`.
+- **BUG-05 e IMP-01:** limite de 600 avaliações/minuto/IP e cache de configuração por 10 segundos, invalidado nas alterações.
+- **DEVOPS-02, DOC-01 e DOC-02:** exemplo de ambiente, README e SECURITY.md atualizados. O Compose exige os segredos e publica em loopback.
+- A interface administrativa foi reorganizada em tela de login e painel responsivo. Valores do banco são renderizados com `textContent`.
+- `featureflags.db` não estava no índice do Git durante esta execução; a regra `*.db` permanece no `.gitignore` para bancos locais.
+
+Não foram adicionados nem executados testes automatizados nesta rodada. `TEST-01` e a validação final continuam pendentes; por isso as caixas da DoD permanecem desmarcadas. A emissão do JWT de contexto fica no backend da aplicação integradora, que deve proteger `EVALUATION_SECRET`.
